@@ -6,4 +6,4 @@ if [[ ! -e dataDLMI-main ]]; then
     curl -O -L "https://github.com/chris-mrn/dataDLMI/archive/refs/heads/main.zip"
     unzip main.zip && rm -f main.zip
 fi
-echo "Nothing to be done: the data has already been loaded"
+echo " the data was load"

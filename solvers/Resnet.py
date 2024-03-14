@@ -26,7 +26,7 @@ class Solver(BaseSolver):
 
     def set_objective(self, X, y):
         # Define the information received by each solver from the objective.
-        # The arguments of this function are the results of the
+        # The arguments of this function are the results of
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.

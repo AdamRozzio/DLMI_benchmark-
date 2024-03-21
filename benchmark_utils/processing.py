@@ -11,3 +11,17 @@ def grey_image(colored_img):
                                    colored_img[2])
 
     return new_img
+
+
+def flatten_images(images):
+    # Initialize an empty list to store flattened images
+    X_flatten = []
+
+    # Iterate over each image
+    for img in images:
+        # Flatten the image and append it to the list
+        flattened_img = img.flatten()
+        X_flatten.append(flattened_img)
+
+    # Convert the list of flattened images to a NumPy array
+    return np.array(X_flatten)

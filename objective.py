@@ -1,11 +1,12 @@
 from benchopt import BaseObjective, safe_import_context
-from sklearn.metrics import balanced_accuracy_score
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
+    from sklearn.metrics import balanced_accuracy_score
+    from benchmark_utils.processing import flatten_images
 
 
 # The benchmark objective must be named `Objective` and
@@ -48,11 +49,14 @@ class Objective(BaseObjective):
             X_train=self.X_train, y_train=self.y_train,
             X_test=self.X_test, y_test=self.y_test)
 
-    def evaluate_result(self, model):
+    def evaluate_result(self, model, type):
         # The keyword arguments of this function are the keys of the
         # dictionary returned by `Solver.get_result`. This defines the
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
+
+        if self.type == 'flatten':
+            self.X_test = flatten_images(self.X_testX)
 
         y_pred_train = model.predict(self.X_train)
         y_pred_test = model.predict(self.X_test)

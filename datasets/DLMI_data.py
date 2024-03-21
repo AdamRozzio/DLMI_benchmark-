@@ -6,7 +6,6 @@ from benchopt import BaseDataset, safe_import_context
 with safe_import_context() as import_ctx:
     from benchmark_utils.load_data import load_data, load_X_y
 
-
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
 class Dataset(BaseDataset):
 
@@ -30,6 +29,8 @@ class Dataset(BaseDataset):
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
         X_train, y_train = load_X_y(data_train)
+        import numpy as np
+        print(np.shape(X_train[0]))
         X_test, y_test = load_X_y(data_test)
 
         return dict(X_train=X_train,

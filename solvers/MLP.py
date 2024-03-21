@@ -5,6 +5,7 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     from sklearn.neural_network import MLPClassifier
+    from benchmark_utils.processing import flatten_images
 
 
 # The benchmark solvers must be named `Solver` and
@@ -30,7 +31,7 @@ class Solver(BaseSolver):
         # passing the objective to the solver.
         # It is customizable for each benchmark.
 
-        self.X, self.y = X, y
+        self.X, self.y = flatten_images(X), y
         self.clf = MLPClassifier(random_state=1, max_iter=300)
 
     def run(self, n_iter):
@@ -46,4 +47,4 @@ class Solver(BaseSolver):
         # The outputs of this function are the arguments of `Objective.compute`
         # This defines the benchmark's API for solvers' results.
         # it is customizable for each benchmark.
-        return dict(model=self.clf)
+        return dict(model=self.clf, type='flatten')

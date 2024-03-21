@@ -32,7 +32,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
 
         self.X, self.y = flatten_images(X), y
-        self.clf = MLPClassifier(random_state=1, max_iter=300)
+        self.clf = MLPClassifier(random_state=1, max_iter=2)
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.

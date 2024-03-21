@@ -55,7 +55,7 @@ class Objective(BaseObjective):
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
 
-        if self.type == 'flatten':
+        if type == 'flatten':
             self.X_test = flatten_images(self.X_testX)
 
         y_pred_train = model.predict(self.X_train)

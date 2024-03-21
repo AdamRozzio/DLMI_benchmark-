@@ -12,7 +12,6 @@ with safe_import_context() as import_ctx:
     import torch.optim as optim
 
 
-
 # The benchmark solvers must be named `Solver` and
 # inherit from `BaseSolver` for `benchopt` to work properly.
 class Solver(BaseSolver):
@@ -68,6 +67,33 @@ class Solver(BaseSolver):
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+        n_epoch = 2
+
+        for epoch in range(n_epoch):  # loop over the dataset multiple times
+
+            running_loss = 0.0
+
+            for i, data in enumerate(trainloader, 0):
+                # get the inputs; data is a list of [inputs, labels]
+                inputs, labels = data
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward + backward + optimize
+                outputs = net(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                # print statistics
+                running_loss += loss.item()
+                if i % 2000 == 1999:    # print every 2000 mini-batches
+                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
+                    running_loss = 0.0
+
+        print('Finished Training')
 
         self.X, self.y = X, y
         self.clf = CNN

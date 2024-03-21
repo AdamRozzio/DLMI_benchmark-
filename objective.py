@@ -56,7 +56,8 @@ class Objective(BaseObjective):
         # each benchmark.
 
         if type == 'flatten':
-            self.X_test = flatten_images(self.X_testX)
+            self.X_test = flatten_images(self.X_test)
+            self.X_train = flatten_images(self.X_train)
 
         y_pred_train = model.predict(self.X_train)
         y_pred_test = model.predict(self.X_test)
@@ -75,7 +76,7 @@ class Objective(BaseObjective):
     def get_one_result(self):
         # Return one solution. The return value should be an object compatible
         # with `self.evaluate_result`. This is mainly for testing purposes.
-        return dict(beta=np.zeros(self.X.shape[1]))
+        return dict(beta=np.zeros(self.X_test.shape[1]))
 
     def get_objective(self):
         # Define the information to pass to each solver to run the benchmark.

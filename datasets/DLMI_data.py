@@ -6,6 +6,7 @@ from benchopt import BaseDataset, safe_import_context
 with safe_import_context() as import_ctx:
     from benchmark_utils.load_data import load_data, load_X_y
 
+
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
 class Dataset(BaseDataset):
 

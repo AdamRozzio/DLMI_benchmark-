@@ -34,6 +34,9 @@ class Solver(BaseSolver):
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.
+
+        self.X, self.y = X, y
+
         transform = transforms.Compose(
                     [transforms.ToTensor(),
                         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
@@ -65,8 +68,15 @@ class Solver(BaseSolver):
 
         CNN = Net()
 
+        self.clf = CNN
+
+    def run(self, n_iter):
+        # This is the function that is called to evaluate the solver.
+        # It runs the algorithm for a given a number of iterations `n_iter`.
+
+        clf = self.clf
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        optimizer = optim.SGD(clf.parameters(), lr=0.001, momentum=0.9)
 
         n_epoch = 2
 
@@ -82,7 +92,7 @@ class Solver(BaseSolver):
                 optimizer.zero_grad()
 
                 # forward + backward + optimize
-                outputs = net(inputs)
+                outputs = CNN(inputs)
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
@@ -94,14 +104,6 @@ class Solver(BaseSolver):
                     running_loss = 0.0
 
         print('Finished Training')
-
-        self.X, self.y = X, y
-        self.clf = CNN
-
-    def run(self, n_iter):
-        # This is the function that is called to evaluate the solver.
-        # It runs the algorithm for a given a number of iterations `n_iter`.
-        self.clf.fit(self.X, self.y)
 
     def get_next(self, n_iter):
         return n_iter + 1

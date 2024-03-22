@@ -1,9 +1,9 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from PIL import Image
 
 
 def load_images_from_folder(folder_path):
@@ -14,9 +14,10 @@ def load_images_from_folder(folder_path):
 
         # Check if the file is a regular file and has a JPEG extension
         if os.path.isfile(file_path) and file_path.lower().endswith('.jpg'):
-            # Load the image using Pillow
-            image = plt.imread(file_path)
-            images.append(image)
+            # Open the image using PIL's Image.open
+            with Image.open(file_path) as image:
+                # Convert the image to numpy array and append to the list
+                images.append(np.transpose(np.array(image)))
 
     return images
 
@@ -67,7 +68,7 @@ def rgb_to_grayscale(rgb_image):
 def load_X_y(data):
     X = []
     y = []
-    for j in range(2):
+    for j in range(15):
         images_subject_j = data[j]['images']
         for i in range(len(images_subject_j)):
             X.append(data[j]['images'][i])
@@ -82,10 +83,8 @@ def load_X_y(data):
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None):
-        X_flat = [image for i in range(len(X)) for image in X[i]]
-        y_flat = [y[j] for j in range(len(y)) for i in range(len(X[j]))]
-        self.X = torch.tensor(np.array(X_flat), dtype=torch.float32)
-        self.y = torch.tensor(np.array(y_flat), dtype=torch.long)
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.long)
         self.transform = transform
 
     def __len__(self):
@@ -95,8 +94,6 @@ class CustomDataset(Dataset):
         sample = {'image': self.X[idx], 'label': self.y[idx]}
 
         if self.transform:
-            print(type(sample['image']))
-            print(sample)
             sample['image'] = self.transform(sample['image'])
 
         return sample

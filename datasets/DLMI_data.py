@@ -38,8 +38,9 @@ class Dataset(BaseDataset):
         batch_size = 4
 
         transform = transforms.Compose([
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
+
         train_dataset = CustomDataset(X_train, y_train, transform=transform)
         test_dataset = CustomDataset(X_test, y_test, transform=transform)
 

@@ -40,7 +40,9 @@ class Solver(BaseSolver):
                 self.conv1 = nn.Conv2d(3, 6, 5)
                 self.pool = nn.MaxPool2d(2, 2)
                 self.conv2 = nn.Conv2d(6, 16, 5)
-                self.fc1 = nn.Linear(16 * 5 * 5, 120)
+
+                # Define fully connected layers
+                self.fc1 = nn.Linear(16 * 53 * 53, 120)
                 self.fc2 = nn.Linear(120, 84)
                 self.fc3 = nn.Linear(84, 10)
 
@@ -71,7 +73,7 @@ class Solver(BaseSolver):
         # This is the function that is called to evaluate the solver.
         # It runs the algorithm for a given a number of iterations `n_iter`.
         clf = self.clf
-        
+
         clf.fit(epochs=2)
 
     def get_next(self, n_iter):

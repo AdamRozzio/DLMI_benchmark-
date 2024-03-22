@@ -74,8 +74,11 @@ class Objective(BaseObjective):
         y_pred_train = model.predict(self.train_loader)
         y_pred_test = model.predict(self.test_loader)
 
-        score_test = balanced_accuracy_score(self.y_test, y_pred_test)
-        score_train = balanced_accuracy_score(self.y_train, y_pred_train)
+        print("les prédictions de test sont", y_pred_test)
+        print("les prédictions de train sont", y_pred_train)
+
+        score_test = balanced_accuracy_score(self.y_test.cpu(), y_pred_test)
+        score_train = balanced_accuracy_score(self.y_train.cpu(), y_pred_train)
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.

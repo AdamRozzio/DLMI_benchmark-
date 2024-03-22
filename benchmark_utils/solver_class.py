@@ -10,6 +10,7 @@ class CNN:
 
     def fit(self, epochs=2):
         for epoch in range(epochs):
+            print(f'Epoch {epoch + 1}')
             self.model.train()
             running_loss = 0.0
             for i, data in enumerate(self.train_loader, 0):
@@ -33,6 +34,9 @@ class CNN:
             for data in test_loader:
                 inputs = data['image']
                 outputs = self.model(inputs)
-                _, predicted = torch.max(outputs, 1)
-                predictions.extend(predicted.tolist())
+                print("la sortie est1", outputs)
+                # Convert to 0 or 1 based on threshold
+                outputs = torch.round(torch.clamp(outputs, 0, 1))
+                print("la sortie est2", outputs)
+                predictions.append(outputs)
         return predictions

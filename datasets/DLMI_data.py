@@ -8,6 +8,7 @@ with safe_import_context() as import_ctx:
     from benchmark_utils.load_data import load_data, load_X_y
     from benchmark_utils.load_data import CustomDataset
     from torch.utils.data import DataLoader
+    import torch
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -35,14 +36,22 @@ class Dataset(BaseDataset):
         X_train, y_train = load_X_y(data_train)
         X_test, y_test = load_X_y(data_test)
 
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+            print("Running on MPS")
+
         batch_size = 4
 
         transform = transforms.Compose([
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
 
-        train_dataset = CustomDataset(X_train, y_train, transform=transform)
-        test_dataset = CustomDataset(X_test, y_test, transform=transform)
+        train_dataset = CustomDataset(X_train, y_train,
+                                      transform=transform,
+                                      device=device)
+        test_dataset = CustomDataset(X_test, y_test,
+                                     transform=transform,
+                                     device=device)
 
         train_loader = DataLoader(train_dataset,
                                   batch_size=batch_size,

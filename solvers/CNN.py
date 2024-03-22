@@ -56,9 +56,16 @@ class Solver(BaseSolver):
                 x = F.relu(self.fc1(x))
                 x = F.relu(self.fc2(x))
                 x = self.fc3(x)
+
                 return x
 
         net = Net()
+
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+            print("Running on MPS")
+
+        net.to(device)
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)

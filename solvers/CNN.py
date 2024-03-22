@@ -5,11 +5,10 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import torch
-    import torchvision
-    import torchvision.transforms as transforms
     import torch.nn as nn
     import torch.nn.functional as F
     import torch.optim as optim
+    from benchmark_utils.solver_class import CNN
 
 
 # The benchmark solvers must be named `Solver` and
@@ -28,21 +27,12 @@ class Solver(BaseSolver):
     # section in objective.py
     requirements = []
 
-    def set_objective(self, X, y):
+    def set_objective(self, train_loader):
         # Define the information received by each solver from the objective.
         # The arguments of this function are the results of
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.
-
-        self.X, self.y = X, y
-
-        transform = transforms.Compose(
-                    [transforms.ToTensor(),
-                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-                                        )
-
-        batch_size = 4
 
         class Net(nn.Module):
             def __init__(self):
@@ -66,44 +56,23 @@ class Solver(BaseSolver):
                 x = self.fc3(x)
                 return x
 
-        CNN = Net()
+        net = Net()
 
-        self.clf = CNN
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        clf = CNN(model=net,
+                  criterion=criterion,
+                  optimizer=optimizer,
+                  train_loader=train_loader)
+
+        self.clf = clf
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.
         # It runs the algorithm for a given a number of iterations `n_iter`.
-
         clf = self.clf
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(clf.parameters(), lr=0.001, momentum=0.9)
-
-        n_epoch = 2
-
-        for epoch in range(n_epoch):  # loop over the dataset multiple times
-
-            running_loss = 0.0
-
-            for i, data in enumerate(trainloader, 0):
-                # get the inputs; data is a list of [inputs, labels]
-                inputs, labels = data
-
-                # zero the parameter gradients
-                optimizer.zero_grad()
-
-                # forward + backward + optimize
-                outputs = CNN(inputs)
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-
-                # print statistics
-                running_loss += loss.item()
-                if i % 2000 == 1999:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
-                    running_loss = 0.0
-
-        print('Finished Training')
+        
+        clf.fit(epochs=2)
 
     def get_next(self, n_iter):
         return n_iter + 1

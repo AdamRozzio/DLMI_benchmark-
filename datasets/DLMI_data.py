@@ -4,7 +4,10 @@ from benchopt import BaseDataset, safe_import_context
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
+    import torchvision.transforms as transforms
     from benchmark_utils.load_data import load_data, load_X_y
+    from benchmark_utils.load_data import CustomDataset
+    from torch.utils.data import DataLoader
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -30,12 +33,26 @@ class Dataset(BaseDataset):
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
         X_train, y_train = load_X_y(data_train)
-        import numpy as np
-        print(np.shape(X_train[0]))
         X_test, y_test = load_X_y(data_test)
 
-        return dict(X_train=X_train,
-                    X_test=X_test,
-                    y_train=y_train,
-                    y_test=y_test,
-                    )
+        batch_size = 4
+
+        transform = transforms.Compose([
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        train_dataset = CustomDataset(X_train, y_train, transform=transform)
+        test_dataset = CustomDataset(X_test, y_test, transform=transform)
+
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=0)
+        test_loader = DataLoader(test_dataset,
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=0)
+
+        return dict(train_dataset=train_dataset,
+                    train_loader=train_loader,
+                    test_dataset=test_dataset,
+                    test_loader=test_loader)

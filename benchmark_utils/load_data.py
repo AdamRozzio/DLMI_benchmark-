@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import torch
+from torch.utils.data import Dataset
 
 
 def load_images_from_folder(folder_path):
@@ -65,10 +67,10 @@ def rgb_to_grayscale(rgb_image):
 def load_X_y(data):
     X = []
     y = []
-    for j in range(len(data)):
+    for j in range(2):
         images_subject_j = data[j]['images']
         for i in range(len(images_subject_j)):
-            X.append(rgb_to_grayscale(data[j]['images'][i]))
+            X.append(data[j]['images'][i])
             y.append(data[j]['label'])
         print("loading of image:", j)
 
@@ -76,3 +78,25 @@ def load_X_y(data):
     y = np.array(y)
 
     return X, y
+
+
+class CustomDataset(Dataset):
+    def __init__(self, X, y, transform=None):
+        X_flat = [image for i in range(len(X)) for image in X[i]]
+        y_flat = [y[j] for j in range(len(y)) for i in range(len(X[j]))]
+        self.X = torch.tensor(np.array(X_flat), dtype=torch.float32)
+        self.y = torch.tensor(np.array(y_flat), dtype=torch.long)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        sample = {'image': self.X[idx], 'label': self.y[idx]}
+
+        if self.transform:
+            print(type(sample['image']))
+            print(sample)
+            sample['image'] = self.transform(sample['image'])
+
+        return sample

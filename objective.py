@@ -38,16 +38,22 @@ class Objective(BaseObjective):
     # Bump it up if the benchmark depends on a new feature of benchopt.
     min_benchopt_version = "1.5"
 
-    def set_data(self, X_train, X_test, y_train, y_test):
+    def set_data(self, train_dataset, train_loader, test_dataset, test_loader):
+
         # The keyword arguments of this function are the keys of the dictionary
         # returned by `Dataset.get_data`. This defines the benchmark's
         # API to pass data. This is customizable for each benchmark.
-        self.X_train, self.y_train = X_train, y_train
-        self.X_test, self.y_test = X_test, y_test
 
-        return dict(
-            X_train=self.X_train, y_train=self.y_train,
-            X_test=self.X_test, y_test=self.y_test)
+        self.train_loader = train_loader
+        self.test_loader = test_loader
+        self.train_dataset = train_dataset
+        self.test_dataset = test_dataset
+
+        return dict(train_dataset=train_dataset,
+                    train_loader=train_loader,
+                    test_dataset=test_dataset,
+                    test_loader=test_loader
+                    )
 
     def evaluate_result(self, model, type):
         # The keyword arguments of this function are the keys of the
@@ -58,6 +64,12 @@ class Objective(BaseObjective):
         if type == 'flatten':
             self.X_test = flatten_images(self.X_test)
             self.X_train = flatten_images(self.X_train)
+
+        if type == 'images':
+            self.X_train = self.train_dataset.X
+            self.X_test = self.test_datase.X
+            self.y_train = self.train_dataset.y
+            self.y_test = self.test_dataset.y
 
         y_pred_train = model.predict(self.X_train)
         y_pred_test = model.predict(self.X_test)
@@ -85,7 +97,4 @@ class Objective(BaseObjective):
         # benchmark's API for passing the objective to the solver.
         # It is customizable for each benchmark.
 
-        return dict(
-            X=self.X_train,
-            y=self.y_train,
-        )
+        return dict(train_loader=self.train_loader)

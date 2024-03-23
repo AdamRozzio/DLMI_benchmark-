@@ -38,7 +38,7 @@ class Dataset(BaseDataset):
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
-            print("Running on MPS")
+            print("data goes to GPU format")
 
         batch_size = 4
 

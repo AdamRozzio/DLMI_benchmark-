@@ -68,11 +68,11 @@ def rgb_to_grayscale(rgb_image):
 def load_X_y(data):
     X = []
     y = []
-    for j in range(6):
+    for j in range(len(data)):
         images_subject_j = data[j]['images']
         for i in range(len(images_subject_j)):
             X.append(data[j]['images'][i])
-            y.append(data[j]['label'])
+            y.append([data[j]['label']])
         print("loading of image:", j)
 
     X = np.array(X)
@@ -84,7 +84,7 @@ def load_X_y(data):
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None, device='cpu'):
         self.X = torch.tensor(X, device=device, dtype=torch.float32)
-        self.y = torch.tensor(y, device=device, dtype=torch.long)
+        self.y = torch.tensor(y, device=device, dtype=torch.float32)
         self.transform = transform
 
     def __len__(self):

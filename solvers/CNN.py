@@ -5,11 +5,9 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import torch
-    import torchvision
-    import torchvision.transforms as transforms
     import torch.nn as nn
-    import torch.nn.functional as F
     import torch.optim as optim
+    from benchmark_utils.solver_class import CNN
 
 
 # The benchmark solvers must be named `Solver` and
@@ -28,82 +26,64 @@ class Solver(BaseSolver):
     # section in objective.py
     requirements = []
 
-    def set_objective(self, X, y):
+    def set_objective(self, train_loader):
         # Define the information received by each solver from the objective.
         # The arguments of this function are the results of
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.
 
-        self.X, self.y = X, y
-
-        transform = transforms.Compose(
-                    [transforms.ToTensor(),
-                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-                                        )
-
-        batch_size = 4
-
         class Net(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.conv1 = nn.Conv2d(3, 6, 5)
-                self.pool = nn.MaxPool2d(2, 2)
-                self.conv2 = nn.Conv2d(6, 16, 5)
-                self.fc1 = nn.Linear(16 * 5 * 5, 120)
-                self.fc2 = nn.Linear(120, 84)
-                self.fc3 = nn.Linear(84, 10)
+                self.network = nn.Sequential(
+
+                    nn.Conv2d(3, 6, 5),
+                    nn.ReLU(),
+                    nn.MaxPool2d(2, 2),
+
+                    nn.Conv2d(6, 16, 5),
+                    nn.ReLU(),
+                    nn.MaxPool2d(2, 2),
+
+                    nn.Flatten(),
+                    nn.Linear(16 * 53 * 53, 120),
+                    nn.ReLU(),
+                    nn.Linear(120, 84),
+                    nn.ReLU(),
+                    nn.Linear(84, 10),
+                    nn.ReLU(),
+                    nn.Linear(10, 1),
+                    nn.Sigmoid()
+                )
 
             def forward(self, x):
-                x = self.pool(F.relu(self.conv1(x)))
-                x = self.pool(F.relu(self.conv2(x)))
-
-                # flatten all dimensions except batch
-                x = torch.flatten(x, 1)
-
-                x = F.relu(self.fc1(x))
-                x = F.relu(self.fc2(x))
-                x = self.fc3(x)
+                x = self.network(x)
                 return x
 
-        CNN = Net()
+        net = Net()
 
-        self.clf = CNN
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+            print("Running on MPS")
+
+        net.to(device)
+
+        criterion = nn.BCELoss()
+        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        clf = CNN(model=net,
+                  criterion=criterion,
+                  optimizer=optimizer,
+                  train_loader=train_loader)
+
+        self.clf = clf
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.
         # It runs the algorithm for a given a number of iterations `n_iter`.
-
         clf = self.clf
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(clf.parameters(), lr=0.001, momentum=0.9)
 
-        n_epoch = 2
-
-        for epoch in range(n_epoch):  # loop over the dataset multiple times
-
-            running_loss = 0.0
-
-            for i, data in enumerate(trainloader, 0):
-                # get the inputs; data is a list of [inputs, labels]
-                inputs, labels = data
-
-                # zero the parameter gradients
-                optimizer.zero_grad()
-
-                # forward + backward + optimize
-                outputs = CNN(inputs)
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-
-                # print statistics
-                running_loss += loss.item()
-                if i % 2000 == 1999:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
-                    running_loss = 0.0
-
-        print('Finished Training')
+        clf.fit(epochs=40)
 
     def get_next(self, n_iter):
         return n_iter + 1

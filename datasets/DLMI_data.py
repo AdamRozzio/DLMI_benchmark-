@@ -4,7 +4,11 @@ from benchopt import BaseDataset, safe_import_context
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
+    import torchvision.transforms as transforms
     from benchmark_utils.load_data import load_data, load_X_y
+    from benchmark_utils.load_data import CustomDataset
+    from torch.utils.data import DataLoader
+    import torch
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -30,12 +34,35 @@ class Dataset(BaseDataset):
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
         X_train, y_train = load_X_y(data_train)
-        import numpy as np
-        print(np.shape(X_train[0]))
         X_test, y_test = load_X_y(data_test)
 
-        return dict(X_train=X_train,
-                    X_test=X_test,
-                    y_train=y_train,
-                    y_test=y_test,
-                    )
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        
+        batch_size = 4
+
+        transform = transforms.Compose([
+        transforms.Resize((224,224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+
+        train_dataset = CustomDataset(X_train, y_train,
+                                      transform=transform,
+                                      device=device)
+        test_dataset = CustomDataset(X_test, y_test,
+                                     transform=transform,
+                                     device=device)
+
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  num_workers=0)
+        test_loader = DataLoader(test_dataset,
+                                 batch_size=batch_size,
+                                 shuffle=True,
+                                 num_workers=0)
+
+        return dict(train_dataset=train_dataset,
+                    train_loader=train_loader,
+                    test_dataset=test_dataset,
+                    test_loader=test_loader)

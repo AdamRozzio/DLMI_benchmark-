@@ -4,8 +4,12 @@ from benchopt import BaseSolver, safe_import_context
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from torchvision.models import resnet50
     import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    from torchvision import models
+    from torchvision.models import ResNet50_Weights
+    from benchmark_utils.solver_class import ResNet
 
 
 # The benchmark solvers must be named `Solver` and
@@ -13,7 +17,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = 'Resnet'
+    name = 'ResNet'
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -24,20 +28,31 @@ class Solver(BaseSolver):
     # section in objective.py
     requirements = []
 
-    def set_objective(self, X, y):
+    def set_objective(self, train_loader):
         # Define the information received by each solver from the objective.
         # The arguments of this function are the results of
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.
-        X_tensor = torch.tensor(X)
-        self.X, self.y = X_tensor, y
-        self.clf = resnet50()
+
+        net = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
+
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        
+        net.to(device)
+
+        criterion = nn.BCELoss()
+        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        clf = ResNet(model=net, criterion=criterion, optimizer=optimizer, train_loader=train_loader)
+
+        self.clf = clf
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.
         # It runs the algorithm for a given a number of iterations `n_iter`.
-        self.clf.fit(self.X, self.y)
+        clf = self.clf
+
+        clf.fit(epochs=1)
 
     def get_next(self, n_iter):
         return n_iter + 1

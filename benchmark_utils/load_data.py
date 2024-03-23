@@ -1,7 +1,9 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import numpy as np
+import torch
+from torch.utils.data import Dataset
+from PIL import Image
 
 
 def load_images_from_folder(folder_path):
@@ -12,9 +14,10 @@ def load_images_from_folder(folder_path):
 
         # Check if the file is a regular file and has a JPEG extension
         if os.path.isfile(file_path) and file_path.lower().endswith('.jpg'):
-            # Load the image using Pillow
-            image = plt.imread(file_path)
-            images.append(image)
+            # Open the image using PIL's Image.open
+            with Image.open(file_path) as image:
+                # Convert the image to numpy array and append to the list
+                images.append(np.transpose(np.array(image)))
 
     return images
 
@@ -68,11 +71,29 @@ def load_X_y(data):
     for j in range(len(data)):
         images_subject_j = data[j]['images']
         for i in range(len(images_subject_j)):
-            X.append(rgb_to_grayscale(data[j]['images'][i]))
-            y.append(data[j]['label'])
+            X.append(data[j]['images'][i])
+            y.append([data[j]['label']])
         print("loading of image:", j)
 
     X = np.array(X)
     y = np.array(y)
 
     return X, y
+
+
+class CustomDataset(Dataset):
+    def __init__(self, X, y, transform=None, device="cpu"):
+        self.X = torch.tensor(X, device="cpu", dtype=torch.float32)
+        self.y = torch.tensor(y, device="cpu", dtype=torch.float32)
+        self.transform = transform
+        
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        sample = {'image': self.X[idx], 'label': self.y[idx]}
+
+        if self.transform:
+            sample['image'] = self.transform(sample['image'])
+
+        return sample

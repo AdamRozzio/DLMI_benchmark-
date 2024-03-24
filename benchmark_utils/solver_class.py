@@ -11,7 +11,6 @@ class CNN:
     def fit(self, epochs=2):
         self.model.train()
         for epoch in range(epochs):
-            print(f'Epoch {epoch + 1}')
             running_loss = 0.0
             for i, data in enumerate(self.train_loader, 0):
                 inputs, labels = data['image'], data['label']

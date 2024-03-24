@@ -9,6 +9,7 @@ with safe_import_context() as import_ctx:
     from benchmark_utils.load_data import CustomDataset
     from torch.utils.data import DataLoader
     import torch
+    from sklearn.model_selection import train_test_split
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -33,14 +34,19 @@ class Dataset(BaseDataset):
         data_test = load_data(csv_path_test, images_path_test)
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
-        X_train, y_train = load_X_y(data_train)
+        X_train_1, y_train_1 = load_X_y(data_train)
         X_test, y_test = load_X_y(data_test)
+
+        X_train, X_test, y_train, y_test = train_test_split(
+             X_train_1, y_train_1, test_size=0.33, random_state=42)
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
             print("data goes to GPU format")
 
-        batch_size = 4
+        batch_size = 16
+
+        # i want to transform my data to tensor
 
         transform = transforms.Compose([
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -49,6 +55,7 @@ class Dataset(BaseDataset):
         train_dataset = CustomDataset(X_train, y_train,
                                       transform=transform,
                                       device=device)
+
         test_dataset = CustomDataset(X_test, y_test,
                                      transform=transform,
                                      device=device)
@@ -57,6 +64,7 @@ class Dataset(BaseDataset):
                                   batch_size=batch_size,
                                   shuffle=True,
                                   num_workers=0)
+
         test_loader = DataLoader(test_dataset,
                                  batch_size=batch_size,
                                  shuffle=True,

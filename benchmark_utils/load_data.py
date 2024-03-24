@@ -17,7 +17,7 @@ def load_images_from_folder(folder_path):
             # Open the image using PIL's Image.open
             with Image.open(file_path) as image:
                 # Convert the image to numpy array and append to the list
-                images.append(np.transpose(np.array(image)))
+                images.append(np.array(image))
 
     return images
 
@@ -71,9 +71,9 @@ def load_X_y(data):
     for j in range(len(data)):
         images_subject_j = data[j]['images']
         for i in range(len(images_subject_j)):
-            X.append(data[j]['images'][i])
+            X.append(np.transpose(data[j]['images'][i]))
             y.append([data[j]['label']])
-        print("loading of image:", j)
+        print("loading images from patient:", j)
 
     X = np.array(X)
     y = np.array(y)
@@ -83,9 +83,10 @@ def load_X_y(data):
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None, device='cpu'):
-        self.X = torch.tensor(X, device=device, dtype=torch.float32)
-        self.y = torch.tensor(y, device=device, dtype=torch.float32)
+        self.X = X
+        self.y = y
         self.transform = transform
+        self.device = device
 
     def __len__(self):
         return len(self.X)
@@ -93,7 +94,14 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         sample = {'image': self.X[idx], 'label': self.y[idx]}
 
+        if self.device:
+            sample['image'] = torch.tensor(sample['image'],
+                                           device=self.device,
+                                           dtype=torch.float32)
+            sample['label'] = torch.tensor(sample['label'],
+                                           device=self.device,
+                                           dtype=torch.float32)
         if self.transform:
-            sample['image'] = self.transform(sample['image'])
-
+            image = self.transform(sample['image'])
+            sample['image'] = image
         return sample

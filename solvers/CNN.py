@@ -83,7 +83,7 @@ class Solver(BaseSolver):
         # It runs the algorithm for a given a number of iterations `n_iter`.
         clf = self.clf
 
-        clf.fit(epochs=40)
+        clf.fit(epochs=5)
 
     def get_next(self, n_iter):
         return n_iter + 1

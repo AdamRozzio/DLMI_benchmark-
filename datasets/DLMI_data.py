@@ -44,7 +44,7 @@ class Dataset(BaseDataset):
             device = torch.device("mps")
             print("data goes to GPU format")
 
-        batch_size = 16
+        batch_size = 4
 
         # i want to transform my data to tensor
 

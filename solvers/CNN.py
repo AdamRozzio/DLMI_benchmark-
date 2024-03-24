@@ -65,7 +65,7 @@ class Solver(BaseSolver):
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
-            print("Running on MPS")
+            print("Running on the GPU")
 
         net.to(device)
 

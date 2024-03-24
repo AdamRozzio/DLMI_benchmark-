@@ -17,7 +17,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = 'ResNet'
+    name = 'resnet'
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -41,7 +41,8 @@ class Solver(BaseSolver):
         num_ftrs = net.fc.in_features
 
         # Here the size of each output sample is set to 1.
-        # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
+        # Alternatively, it can be generalized to
+        # ``nn.Linear(num_ftrs, len(class_names))``.
         net.fc = nn.Linear(num_ftrs, 1)
         # Ajoutez une couche softmax à la fin
         net = nn.Sequential(net, nn.Softmax(dim=1))
@@ -50,10 +51,10 @@ class Solver(BaseSolver):
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-        clf = ResNet(model=net, 
+        clf = ResNet(model=net,
                      criterion=criterion,
-                     optimizer=optimizer, 
-                     train_loader=train_loader, 
+                     optimizer=optimizer,
+                     train_loader=train_loader,
                      device=device)
 
         self.clf = clf

@@ -83,8 +83,8 @@ def load_X_y(data):
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None, device="cpu"):
-        self.X = torch.tensor(X, device="cpu", dtype=torch.float32)
-        self.y = torch.tensor(y, device="cpu", dtype=torch.float32)
+        self.X = torch.tensor(X, device=device, dtype=torch.float32)
+        self.y = torch.tensor(y, device=device, dtype=torch.float32)
         self.transform = transform
         
     def __len__(self):

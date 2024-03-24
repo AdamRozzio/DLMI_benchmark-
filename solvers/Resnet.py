@@ -38,12 +38,21 @@ class Solver(BaseSolver):
         net = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        
+        num_ftrs = net.fc.in_features
+
+        # Here the size of each output sample is set to 2.
+        # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
+        net.fc = nn.Linear(num_ftrs, 2)
+
         net.to(device)
 
-        criterion = nn.BCELoss()
+        criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-        clf = ResNet(model=net, criterion=criterion, optimizer=optimizer, train_loader=train_loader)
+        clf = ResNet(model=net, 
+                     criterion=criterion,
+                     optimizer=optimizer, 
+                     train_loader=train_loader, 
+                     device=device)
 
         self.clf = clf
 

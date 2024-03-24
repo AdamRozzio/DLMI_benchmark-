@@ -40,9 +40,11 @@ class Solver(BaseSolver):
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         num_ftrs = net.fc.in_features
 
-        # Here the size of each output sample is set to 2.
+        # Here the size of each output sample is set to 1.
         # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
-        net.fc = nn.Linear(num_ftrs, 2)
+        net.fc = nn.Linear(num_ftrs, 1)
+        # Ajoutez une couche softmax à la fin
+        net = nn.Sequential(net, nn.Softmax(dim=1))
 
         net.to(device)
 

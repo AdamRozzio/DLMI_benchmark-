@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
-
+from torchvision.transforms.functional import to_pil_image
 
 def load_images_from_folder(folder_path):
     images = []
@@ -55,16 +55,6 @@ def load_data(csv_path, images_path):
     return data_dict
 
 
-def rgb_to_grayscale(rgb_image):
-    # Convert RGB to grayscale using the luminosity method
-    grayscale_image = np.dot(rgb_image[..., :3], [0.299, 0.587, 0.114])
-
-    # Convert to uint8 data type (required for Pillow)
-    grayscale_image = grayscale_image.astype(np.uint8)
-
-    return grayscale_image
-
-
 def load_X_y(data):
     X = []
     y = []
@@ -86,14 +76,21 @@ class CustomDataset(Dataset):
         self.X = torch.tensor(X, device=device, dtype=torch.float32)
         self.y = torch.tensor(y, device=device, dtype=torch.float32)
         self.transform = transform
-        
+
     def __len__(self):
         return len(self.X)
 
     def __getitem__(self, idx):
+        print(self.X[idx])
+        print(type(self.X[idx]))
         sample = {'image': self.X[idx], 'label': self.y[idx]}
 
         if self.transform:
+            
+            # Convertir le tenseur en image PIL
+            sample['image'] = to_pil_image(sample['image'])
+
+            # Appliquer les transformations
             sample['image'] = self.transform(sample['image'])
 
         return sample

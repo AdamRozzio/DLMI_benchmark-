@@ -17,7 +17,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = 'ResNet'
+    name = 'ResNet_SVM'
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.

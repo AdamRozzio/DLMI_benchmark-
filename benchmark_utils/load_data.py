@@ -70,6 +70,21 @@ def load_X_y(data):
 
     return X, y
 
+def load_X_y_tab(data):
+    X = []
+    y = []
+    for j in range(len(data)):
+        list = [data[j]['dob'], data[j]['gender'], data[j]['lymph_count'], data[j]['id']]
+        for e in list :
+            X.append(e)
+        y.append([data[j]['label']])
+        print("loading of image:", j)
+
+    X = np.array(X)
+    y = np.array(y)
+
+    return X, y
+
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None, device="cpu"):

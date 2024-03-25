@@ -1,14 +1,16 @@
 import torch
+import torch.nn as nn
 import time
 
 
 class ResNet:
-    def __init__(self, model, criterion, optimizer, train_loader, device):
+    def __init__(self, model, criterion, optimizer, train_loader, tab_data, device):
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
         self.train_loader = train_loader
         self.device = device
+        self.tab_data = tab_data
 
     def fit(self, epochs=1):
         since = time.time()
@@ -37,6 +39,9 @@ class ResNet:
         time_elapsed = time.time() - since
         print('Finished Training')
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+
+        self.model = nn.Sequential(*list(self.model.children())[:-2])
+
 
     def predict(self, test_loader):
         self.model.eval()

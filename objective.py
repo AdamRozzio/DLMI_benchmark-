@@ -70,6 +70,10 @@ class Objective(BaseObjective):
             self.X_test = self.test_dataset.X
             self.y_train = self.train_dataset.y
             self.y_test = self.test_dataset.y
+#TODO
+        for data in self.X_train :
+            inputs = data
+            outputs = self.model(inputs)
 
         y_pred_train = model.predict(self.train_loader)
         y_pred_test = model.predict(self.test_loader)

@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 from torchvision.transforms.functional import to_pil_image
 
+
 def load_images_from_folder(folder_path):
     images = []
 
@@ -81,12 +82,10 @@ class CustomDataset(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        print(self.X[idx])
-        print(type(self.X[idx]))
         sample = {'image': self.X[idx], 'label': self.y[idx]}
 
         if self.transform:
-            
+
             # Convertir le tenseur en image PIL
             sample['image'] = to_pil_image(sample['image'])
 

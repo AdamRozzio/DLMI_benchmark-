@@ -5,6 +5,7 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     from sklearn.dummy import DummyClassifier
+    import torch
 
 
 # The benchmark solvers must be named `Solver` and
@@ -23,12 +24,22 @@ class Solver(BaseSolver):
     # section in objective.py
     requirements = []
 
-    def set_objective(self, X, y):
+    def set_objective(self, train_loader):
         # Define the information received by each solver from the objective.
         # The arguments of this function are the results of the
         # `Objective.get_objective`. This defines the benchmark's API for
         # passing the objective to the solver.
         # It is customizable for each benchmark.
+
+        X = []
+        y = []
+        for data in train_loader:
+            inputs, labels = data['image'], data['label']
+            X.append(inputs)
+            y.append(labels)
+
+        X = torch.cat(X, dim=0).cpu().numpy()
+        y = torch.cat(y, dim=0).cpu().numpy()
 
         self.X, self.y = X.reshape(X.shape[0], -1), y
         self.clf = DummyClassifier(strategy="most_frequent")

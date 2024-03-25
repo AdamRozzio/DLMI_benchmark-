@@ -70,7 +70,7 @@ class Solver(BaseSolver):
         net.to(device)
 
         criterion = nn.BCELoss()
-        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.5)
         clf = CNN(model=net,
                   criterion=criterion,
                   optimizer=optimizer,
@@ -83,7 +83,7 @@ class Solver(BaseSolver):
         # It runs the algorithm for a given a number of iterations `n_iter`.
         clf = self.clf
 
-        clf.fit(epochs=5)
+        clf.fit(epochs=10)
 
     def get_next(self, n_iter):
         return n_iter + 1

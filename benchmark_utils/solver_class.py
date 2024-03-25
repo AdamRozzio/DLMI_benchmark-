@@ -16,13 +16,18 @@ class CNN:
                 inputs, labels = data['image'], data['label']
                 self.optimizer.zero_grad()
                 outputs = self.model(inputs)
+                if i % 100 == 99:
+                    print('les outputs sont', outputs[0])
+                    print('les labels sont', labels[0])
                 loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
                 if i % 2000 == 1999:
+                    print('les outputs sont', outputs[0])
+                    print('les labels sont', labels[0])
                     print(f'[{epoch + 1}, {i + 1:5d}]',
-                          f'loss: {running_loss / 2000:.3f}')
+                          f'train_loss: {running_loss / 2000:.3f}')
                     running_loss = 0.0
         print('Finished Training')
 
@@ -35,4 +40,8 @@ class CNN:
                 outputs = self.model(inputs)
                 binary_predictions = (outputs >= 0.5).float()
                 predictions.extend(binary_predictions.cpu().numpy().tolist())
+
+        for i in range(len(predictions)):
+            print("les prédictions sont", i, predictions[i])
+
         return predictions

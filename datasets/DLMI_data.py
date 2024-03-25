@@ -27,22 +27,21 @@ class Dataset(BaseDataset):
 
         csv_path_train = "dataset/dataDLMI-main/trainset/trainset_true.csv"
         images_path_train = "dataset/dataDLMI-main/trainset/"
-        csv_path_test = "dataset/dataDLMI-main/testset/testset_data.csv"
-        images_path_test = "dataset/dataDLMI-main/testset/"
+        # csv_path_test = "dataset/dataDLMI-main/testset/testset_data.csv"
+        # images_path_test = "dataset/dataDLMI-main/testset/"
 
         data_train = load_data(csv_path_train, images_path_train)
-        data_test = load_data(csv_path_test, images_path_test)
+        # data_test = load_data(csv_path_test, images_path_test)
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
         X_train_1, y_train_1 = load_X_y(data_train)
-        X_test, y_test = load_X_y(data_test)
 
         X_train, X_test, y_train, y_test = train_test_split(
              X_train_1, y_train_1, test_size=0.33, random_state=42)
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
-            print("data goes to GPU format")
+            print("Data goes to GPU format")
 
         batch_size = 4
 

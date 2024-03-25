@@ -81,6 +81,22 @@ def load_X_y(data):
     return X, y
 
 
+def load_X_y_simu(data):
+    X = []
+    y = []
+    for j in range(15):
+        images_subject_j = data[j]['images']
+        for i in range(len(images_subject_j)):
+            X.append(np.transpose(data[j]['images'][i]))
+            y.append([data[j]['label']])
+        print("loading images from patient:", j)
+
+    X = np.array(X)
+    y = np.array(y)
+
+    return X, y
+
+
 class CustomDataset(Dataset):
     def __init__(self, X, y, transform=None, device='cpu'):
         self.X = X

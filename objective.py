@@ -6,7 +6,6 @@ from benchopt import BaseObjective, safe_import_context
 with safe_import_context() as import_ctx:
     import numpy as np
     from sklearn.metrics import balanced_accuracy_score
-    from benchmark_utils.processing import flatten_images
 
 
 # The benchmark objective must be named `Objective` and
@@ -61,32 +60,32 @@ class Objective(BaseObjective):
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
 
-        if type == 'flatten':
-            self.X_test = flatten_images(self.X_test)
-            self.X_train = flatten_images(self.X_train)
-
-        if type == 'images':
-            self.X_train = self.train_dataset.X
-            self.X_test = self.test_dataset.X
-            self.y_train = self.train_dataset.y
-            self.y_test = self.test_dataset.y
+        y_train = self.train_dataset.y
+        y_test = self.test_dataset.y
 
         y_pred_train = model.predict(self.train_loader)
         y_pred_test = model.predict(self.test_loader)
 
-        print("les prédictions de test sont", y_pred_test)
-        print("les prédictions de train sont", y_pred_train)
+        y_train = [float(x[0]) for x in y_train]
+        y_test = [float(x[0]) for x in y_test]
+        y_pred_train = [float(x[0]) for x in y_pred_train]
+        y_pred_test = [float(x[0]) for x in y_pred_test]
 
-        score_test = balanced_accuracy_score(self.y_test,
-                                             y_pred_test)
-        score_train = balanced_accuracy_score(self.y_train,
-                                              y_pred_train)
+        score_train = balanced_accuracy_score(y_pred_train, y_train)
+        print("score_train", score_train)
+
+        score_test = balanced_accuracy_score(y_pred_test, y_test)
+        print("score_test", score_test)
+
+        for i in range(len(y_train)):
+            if i % 17 == 1:
+                print('truth', 'pred', (y_train[i], y_pred_train[i]))
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
         return dict(
-            score_test=score_test,
-            score_train=score_train,
+            bas_test=score_test,
+            bas_train=score_train,
             value=1-score_test
         )
 

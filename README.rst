@@ -1,6 +1,5 @@
-My Benchopt Benchmark for DLMI 
+### Benchopt Benchmark for DLMI 
 
-=====================
 |Build Status| |Python 3.6+|
 
 Benchopt is a package to simplify and make more transparent and

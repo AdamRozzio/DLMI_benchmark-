@@ -1,16 +1,5 @@
 Benchopt Benchmark for DLMI 
---------
 
-|Build Status| |Python 3.6+|
-
-Benchopt is a package to simplify and make more transparent and
-reproducible the comparisons of optimization algorithms.
-This benchmark is dedicated to solver of **describe your problem**:
-
-
-$$\\min_{\\beta} f(X, \\beta),$$
-
-where $X$ is the matrix of data and $\\beta$ is the optimization variable.
 
 Install
 --------

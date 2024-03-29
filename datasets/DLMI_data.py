@@ -10,6 +10,7 @@ with safe_import_context() as import_ctx:
     from torch.utils.data import DataLoader
     import torch
     from sklearn.model_selection import train_test_split
+    from benchmark_utils.load_data import load_data_bio
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -34,10 +35,12 @@ class Dataset(BaseDataset):
         # data_test = load_data(csv_path_test, images_path_test)
         # The dictionary defines the keyword arguments for `Objective.set_data`
 
+        data_train_bio = load_data_bio(data_train)
+
         X_train_1, y_train_1 = load_X_y(data_train)
 
         X_train, X_test, y_train, y_test = train_test_split(
-             X_train_1, y_train_1, test_size=0.33, random_state=42)
+             X_train_1, y_train_1, test_size=0.2, random_state=42)
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
@@ -72,4 +75,5 @@ class Dataset(BaseDataset):
         return dict(train_dataset=train_dataset,
                     train_loader=train_loader,
                     test_dataset=test_dataset,
-                    test_loader=test_loader)
+                    test_loader=test_loader,
+                    data_train_bio=data_train_bio)

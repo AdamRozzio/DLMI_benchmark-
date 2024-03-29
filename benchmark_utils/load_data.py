@@ -55,6 +55,23 @@ def load_data(csv_path, images_path):
     return data_dict
 
 
+def load_data_bio(data):
+    X = []
+    y = []
+    for i in range(len(data)):
+        dob = data[i]['dob']
+        age = float(dob.split('/')[2] if '/' in dob else dob.split('-')[2])
+        sex = data[i]['gender']
+        if sex == 'M':
+            sex = 1
+        else:
+            sex = -1
+
+        X.append([data[i]['lymph_count'], age, sex])
+        y.append(data[i]['label'])
+    return X, y
+
+
 def rgb_to_grayscale(rgb_image):
     # Convert RGB to grayscale using the luminosity method
     grayscale_image = np.dot(rgb_image[..., :3], [0.299, 0.587, 0.114])

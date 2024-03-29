@@ -4,9 +4,7 @@ from benchopt import BaseSolver, safe_import_context
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from sklearn.pipeline import make_pipeline
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.svm import SVC
+    from sklearn.linear_model import LogisticRegression
 
 
 # The benchmark solvers must be named `Solver` and
@@ -14,7 +12,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = 'SVM'
+    name = 'Regression'
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -25,7 +23,7 @@ class Solver(BaseSolver):
     # section in objective.py
     requirements = []
 
-    def set_objective(self, X, y):
+    def set_objective(self, train_loader, data_train_bio):
         # Define the information received by each solver from the objective.
         # The arguments of this function are the results of the
         # `Objective.get_objective`. This defines the benchmark's API for
@@ -33,7 +31,8 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
 
         self.X, self.y = X.reshape(X.shape[0], -1), y
-        self.clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+
+        self.clf = LogisticRegression(max_iter=1000, verbose=True)
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.

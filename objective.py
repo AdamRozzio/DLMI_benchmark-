@@ -37,7 +37,12 @@ class Objective(BaseObjective):
     # Bump it up if the benchmark depends on a new feature of benchopt.
     min_benchopt_version = "1.5"
 
-    def set_data(self, train_dataset, train_loader, test_dataset, test_loader):
+    def set_data(self,
+                 train_dataset,
+                 train_loader,
+                 test_dataset,
+                 test_loader,
+                 data_train_bio):
 
         # The keyword arguments of this function are the keys of the dictionary
         # returned by `Dataset.get_data`. This defines the benchmark's
@@ -47,6 +52,7 @@ class Objective(BaseObjective):
         self.test_loader = test_loader
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
+        self.data_train_bio = data_train_bio
 
         return dict(train_dataset=train_dataset,
                     train_loader=train_loader,
@@ -65,11 +71,6 @@ class Objective(BaseObjective):
 
         y_pred_train = model.predict(self.train_loader)
         y_pred_test = model.predict(self.test_loader)
-
-        y_train = [float(x[0]) for x in y_train]
-        y_test = [float(x[0]) for x in y_test]
-        y_pred_train = [float(x[0]) for x in y_pred_train]
-        y_pred_test = [float(x[0]) for x in y_pred_test]
 
         score_train = balanced_accuracy_score(y_pred_train, y_train)
         print("score_train", score_train)
@@ -101,4 +102,5 @@ class Objective(BaseObjective):
         # benchmark's API for passing the objective to the solver.
         # It is customizable for each benchmark.
 
-        return dict(train_loader=self.train_loader)
+        return dict(train_loader=self.train_loader,
+                    data_train_bio=self.data_train_bio)

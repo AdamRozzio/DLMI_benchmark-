@@ -1,5 +1,5 @@
 Benchopt Benchmark for DLMI 
-----------
+--------
 
 |Build Status| |Python 3.6+|
 
